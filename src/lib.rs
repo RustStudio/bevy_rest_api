@@ -21,20 +21,19 @@ use bevy::prelude::*;
 pub struct RestPlugin;
 
 impl Plugin for RestPlugin {
-    fn build (&self, app: &mut App){
-        app
-        .init_resource::<StoreResource>()
-        .add_plugins(bevy_tokio_tasks::TokioTasksPlugin::default())
-        .add_systems(PreStartup, start_rest_server)
-        .add_systems(FixedUpdate, publish_store_resource)
-        .insert_resource(Time::<Fixed>::from_hz(1.0));
+    fn build(&self, app: &mut App) {
+        app.init_resource::<StoreResource>()
+            .add_plugins(bevy_tokio_tasks::TokioTasksPlugin::default())
+            .add_systems(PreStartup, start_rest_server)
+            .add_systems(FixedUpdate, publish_store_resource)
+            .insert_resource(Time::<Fixed>::from_hz(1.0));
     }
 }
 
 // ============================================================================
 use bevy_tokio_tasks::TokioTasksRuntime;
-use warp::Filter;
 use serde::{Deserialize, Serialize};
+use warp::Filter;
 
 #[derive(Resource, Default, Clone)]
 struct StoreResource(Store);
@@ -42,11 +41,11 @@ struct StoreResource(Store);
 fn start_rest_server(
     runtime: ResMut<TokioTasksRuntime>,
     mut store_resource: ResMut<StoreResource>,
-){
+) {
     let store_resource_clone = store_resource.clone();
     runtime.spawn_background_task(|mut ctx| async move {
         let store_filter = warp::any().map(move || store_resource_clone.clone());
-    
+
         let add_items = warp::post()
             .and(warp::path("v1"))
             .and(warp::path("groceries"))
@@ -54,21 +53,18 @@ fn start_rest_server(
             .and(json_body())
             .and(store_filter.clone())
             .and_then(update_grocery_list);
-    
+
         let get_items = warp::get()
             .and(warp::path("v1"))
             .and(warp::path("groceries"))
             .and(warp::path::end())
             .and(store_filter.clone())
             .and_then(get_grocery_list);
-    
-        let routes = add_items.or(get_items);
-    
-        warp::serve(routes)
-            .run(([127, 0, 0, 1], 3030))
-            .await;
-    });
 
+        let routes = add_items.or(get_items);
+
+        warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    });
 }
 
 use parking_lot::RwLock;
@@ -85,7 +81,7 @@ struct Item {
 
 #[derive(Clone, Default)]
 struct Store {
-  grocery_list: Arc<RwLock<Items>>
+    grocery_list: Arc<RwLock<Items>>,
 }
 
 impl Store {
@@ -96,15 +92,13 @@ impl Store {
     }
 }
 
-async fn get_grocery_list(
-    store: StoreResource
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        let result = store.0.grocery_list.read();
-        eprintln!("Getting items {:?}", result);
-        Ok(warp::reply::json(&*result))
+async fn get_grocery_list(store: StoreResource) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = store.0.grocery_list.read();
+    eprintln!("Getting items {:?}", result);
+    Ok(warp::reply::json(&*result))
 }
 
-use warp::{http};
+use warp::http;
 fn json_body() -> impl Filter<Extract = (Item,), Error = warp::Rejection> + Clone {
     // When accepting a body, we want a JSON body
     // (and to reject huge payloads)...
@@ -113,20 +107,21 @@ fn json_body() -> impl Filter<Extract = (Item,), Error = warp::Rejection> + Clon
 
 async fn update_grocery_list(
     item: Item,
-    store: StoreResource
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        store.0.grocery_list.write().insert(item.name, item.quantity);
+    store: StoreResource,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    store
+        .0
+        .grocery_list
+        .write()
+        .insert(item.name, item.quantity);
 
-
-        Ok(warp::reply::with_status(
-            "Added items to the grocery list",
-            http::StatusCode::CREATED,
-        ))
+    Ok(warp::reply::with_status(
+        "Added items to the grocery list",
+        http::StatusCode::CREATED,
+    ))
 }
 
-fn publish_store_resource(
-    store: Res<StoreResource>,
-){
+fn publish_store_resource(store: Res<StoreResource>) {
     let items = store.0.grocery_list.read();
     eprintln!("Publishing items {:?}", items);
 }

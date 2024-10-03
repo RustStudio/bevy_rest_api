@@ -18,7 +18,7 @@
 // ============================================================================
 use bevy::prelude::*;
 
-fn main(){
+fn main() {
     App::new()
         .add_plugins(MinimalPlugins)
         .add_plugins(bevy_rest_template::RestPlugin)
