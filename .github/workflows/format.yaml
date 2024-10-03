@@ -1,0 +1,16 @@
+name: Cargo format
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  schedule:
+    - cron: '1 0 1 * *'
+
+jobs:
+  build_and_test:
+    name: rest_api
+    uses: RustStudio/cargo_ci_template/.github/workflows/reusable_format.yaml@master
