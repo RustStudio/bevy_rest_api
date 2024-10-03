@@ -1,6 +1,6 @@
-// =========================================================================================================================
+// ============================================================================
 /*
- * Copyright (C) 2024 Tan Jun Kiat
+ * Copyright (C) 2024 Rust Studio
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  * limitations under the License.
  *
 */
-// =========================================================================================================================
+// ============================================================================
 use bevy::prelude::*;
 
-fn main(){
+fn main() {
     App::new()
         .add_plugins(MinimalPlugins)
         .add_plugins(bevy_rest_template::RestPlugin)
