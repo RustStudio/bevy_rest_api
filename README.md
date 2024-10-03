@@ -1,3 +1,5 @@
+![Cargo build](https://github.com/RustStudio/bevy_rest_api/actions/workflows/build.yaml/badge.svg) ![Cargo test](https://github.com/RustStudio/bevy_rest_api/actions/workflows/test.yaml/badge.svg) ![Cargo format](https://github.com/RustStudio/bevy_rest_api/actions/workflows/format.yaml/badge.svg)
+
 # Rest API with Bevy
 
 This is a template repository to implement a REST API on Bevy.
